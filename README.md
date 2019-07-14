@@ -1,3 +1,22 @@
+## Information about this fork
+- This fork adds a configuration parameter for an output csv filepath.
+- When controller actions are received, they are written to the csv file.
+- The main reason to use this fork is if capturing user input from a controller is not possible through other means.
+  - The [Inputs](https://github.com/zeth/inputs) python package provides a way of doing this for most controllers on linux or windows that does not require changing the input plugin for the mupen64plus.
+  - That package doesn't work for joysticks on osx, which is why I made the changes to the plugin in this fork.
+
+### Install
+- Install this plugin by compiling it with the mupen64plus core (same as the original plugin).
+- For example, see [here](https://github.com/mupen64plus/mupen64plus-core/blob/77a2f8813251b5257382ec477c3f0ef3ea49c37f/tools/osx_build_instructions.txt) for instructions on doing that on osx.
+
+### Usage
+- To provide the output csv filepath, pass it as a parameter similar to other plugin [parameters](https://mupen64plus.org/wiki/index.php?title=Mupen64Plus_Plugin_Parameters) for mupen64plus:
+```
+/path/to/mupen64plus <other options> --set Input-SDL-Control1[output_filepath]=/path/to/file.csv
+```
+- That will write timestamped actions to the csv file.
+
+
 ![Logo](https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Mupen64plus.svg/127px-Mupen64plus.svg.png)
 
 # https://mupen64plus.org/wiki/index.php/ControllerSetup
