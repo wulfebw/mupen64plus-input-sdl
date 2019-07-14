@@ -156,6 +156,9 @@ typedef struct
 /* global data definitions */
 extern SController controller[4];   // 4 controllers
 
+/* filepath to csv output file*/
+char CONTROLLER_OUTPUT_FILEPATH[1028];
+
 /* global function definitions */
 extern void DebugMessage(int level, const char *message, ...) ATTR_FMT(2,3);
 

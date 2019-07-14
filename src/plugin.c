@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <sys/time.h>
 
 #define M64P_PLUGIN_PROTOTYPES 1
 #include "config.h"
@@ -80,6 +81,9 @@ ptr_ConfigGetUserCachePath      ConfigGetUserCachePath = NULL;
 
 /* global data definitions */
 SController controller[4];   // 4 controllers
+
+/* filepath to csv output file */
+extern char CONTROLLER_OUTPUT_FILEPATH[1028];
 
 /* static data definitions */
 static void (*l_DebugCallback)(void *, int, const char *) = NULL;
@@ -663,6 +667,35 @@ EXPORT void CALL GetKeys( int Control, BUTTONS *Keys )
 #endif
     *Keys = controller[Control].buttons;
 
+    // Write keys to file.
+    FILE *f;
+    f = fopen(CONTROLLER_OUTPUT_FILEPATH, "a");
+    if (f != NULL) {
+      fprintf(f, "%u,", controller[Control].buttons.R_DPAD);
+      fprintf(f, "%u,", controller[Control].buttons.L_DPAD);
+      fprintf(f, "%u,", controller[Control].buttons.D_DPAD);
+      fprintf(f, "%u,", controller[Control].buttons.U_DPAD);
+      fprintf(f, "%u,", controller[Control].buttons.START_BUTTON);
+      fprintf(f, "%u,", controller[Control].buttons.Z_TRIG);
+      fprintf(f, "%u,", controller[Control].buttons.B_BUTTON);
+      fprintf(f, "%u,", controller[Control].buttons.A_BUTTON);
+      fprintf(f, "%u,", controller[Control].buttons.R_CBUTTON);
+      fprintf(f, "%u,", controller[Control].buttons.L_CBUTTON);
+      fprintf(f, "%u,", controller[Control].buttons.D_CBUTTON);
+      fprintf(f, "%u,", controller[Control].buttons.U_CBUTTON);
+      fprintf(f, "%u,", controller[Control].buttons.R_TRIG);
+      fprintf(f, "%u,", controller[Control].buttons.L_TRIG);
+      fprintf(f, "%d,", controller[Control].buttons.X_AXIS);
+      fprintf(f, "%d,", controller[Control].buttons.Y_AXIS);
+
+      struct timeval tv;
+      gettimeofday(&tv, NULL);
+      long microseconds = tv.tv_sec * 1000000 + tv.tv_usec;
+      fprintf(f, "%ld", microseconds);
+      fprintf(f, "\n");
+      fclose(f);
+    }
+
     /* handle mempack / rumblepak switching (only if rumble is active on joystick) */
 #if SDL_VERSION_ATLEAST(2,0,0)
     if (controller[Control].event_joystick) {
@@ -939,6 +972,18 @@ EXPORT void CALL InitiateControllers(CONTROL_INFO ControlInfo)
         DeinitRumble(i);
         DeinitJoystick(i);
     }
+
+    // Write header to the csv file.
+    printf("Input: Writing controller input to: %s\n", CONTROLLER_OUTPUT_FILEPATH);
+    errno = 0;
+    FILE *f;
+    f = fopen(CONTROLLER_OUTPUT_FILEPATH, "w");
+    if (f == NULL) {
+      printf("Input: Unable to open filepath for writing: %s\n", CONTROLLER_OUTPUT_FILEPATH);
+      printf("Input: Error: %d\n", errno);
+    }
+    fprintf(f, "R_DPAD,L_DPAD,D_DPAD,U_DPAD,START_BUTTON,Z_TRIG,B_BUTTON,A_BUTTON,R_CBUTTON,L_CBUTTON,D_CBUTTON,U_CBUTTON,R_TRIG,L_TRIG,X_AXIS,Y_AXIS,timestamp\n");
+    fclose(f);
 
     DebugMessage(M64MSG_INFO, "%s version %i.%i.%i initialized.", PLUGIN_NAME, VERSION_PRINTF_SPLIT(PLUGIN_VERSION));
 }

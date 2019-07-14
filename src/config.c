@@ -46,6 +46,9 @@ typedef enum {
     E_MODE_FULL_AUTO
  } eModeType;
 
+/* filepath to csv output file */
+extern char CONTROLLER_OUTPUT_FILEPATH[1028];
+
 static const char *button_names[] = {
     "DPad R",       // R_DPAD
     "DPad L",       // L_DPAD
@@ -267,6 +270,11 @@ static int load_controller_config(const char *SectionName, int i, int sdlDeviceI
             controller[i].axis[axis_idx].hat_pos_b = get_hat_pos_by_name(value2_str);
         }
     }
+
+    if (ConfigGetParameter(pConfig, "output_filepath", M64TYPE_STRING, &CONTROLLER_OUTPUT_FILEPATH, sizeof(char) * 1028) != M64ERR_SUCCESS)
+      {
+        DebugMessage(M64MSG_WARNING, "missing 'output_filepath' parameter from config section %s", SectionName);
+      }
 
     return 1;
 }
